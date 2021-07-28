@@ -1,0 +1,29 @@
+{
+    "type": "project",
+    "require": {
+        "php": ">=7.4",
+        "ext-json": "*",
+        "ext-bcmath": "*",
+        "ext-event": "*",
+        "slim/slim": "^4.7",
+        "slim/psr7": "^1.4",
+        "php-di/php-di": "^6.3",
+        "vlucas/phpdotenv": "^5.2",
+        "monolog/monolog": "^2.2",
+        "textalk/websocket": "^1.5",
+        "aura/sqlquery": "^2.7"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Gaydamakha\\WsKafkaHttp\\Ms1\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\Gaydamakha\\WsKafkaHttp\\Ms1\\": "tests/"
+        }
+    }
+}

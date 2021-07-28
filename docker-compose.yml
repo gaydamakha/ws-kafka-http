@@ -1,0 +1,83 @@
+version: '3'
+services:
+  ms-1:
+    container_name: ms-1
+    build:
+      context: ./ms-1/.docker
+      dockerfile: Dockerfile
+    environment:
+      HOST_NAME: ms-1
+    ports:
+      - 8100:80
+    volumes:
+      - ./ms-1:/srv/app
+    depends_on:
+      - ms-1-mysql
+      - ms-2
+  ms-1-mysql:
+    image: mariadb
+    container_name: ms-1-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ms-1
+      MYSQL_USER: ms-1-user
+      MYSQL_PASSWORD: ms-1-pwd
+    ports:
+      - 8101:3306
+    volumes:
+      - ./ms-1/.docker/database:/docker-entrypoint-initdb.d
+  zookeeper:
+    container_name: zookeeper
+    image: docker.io/bitnami/zookeeper:3.7
+    ports:
+      - 2181:2181
+    volumes:
+      - zookeeper_data:/bitnami
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+  kafka:
+    container_name: kafka
+    image: docker.io/bitnami/kafka:2
+    ports:
+      - 9092:9092
+    volumes:
+      - kafka_data:/bitnami
+    environment:
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      - zookeeper
+  ms-2:
+    container_name: ms-2
+    build:
+      context: ./ms-2/.docker
+      dockerfile: Dockerfile
+    environment:
+      HOST_NAME: ms-2
+    ports:
+      - 8200:80
+    volumes:
+      - ./ms-2:/srv/app
+    depends_on:
+      - kafka
+  ms-3:
+    container_name: ms-3
+    build:
+      context: ./ms-3/.docker
+      dockerfile: Dockerfile
+    volumes:
+      - ./ms-3:/srv/app
+    command: composer install --working-dir=/srv/app
+    depends_on:
+      - kafka
+      - ms-1
+
+volumes:
+  zookeeper_data:
+    driver: local
+  kafka_data:
+    driver: local
+
+networks:
+  default:
+    name: gaydamakha
